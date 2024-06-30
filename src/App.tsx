@@ -9,6 +9,7 @@ import {
   Space,
   Table,
   Spin,
+  Image,
 } from "antd";
 const { Text } = Typography;
 import abc from "../data.json";
@@ -50,6 +51,7 @@ interface ROI {
 interface TableCoinElement {
   key: string;
   name: string;
+  image: string;
   current_price: string;
   circulating_supply: string;
 }
@@ -103,6 +105,7 @@ function App() {
       const dataToShow: TableCoinElement[] = coins.map((coin) => {
         return {
           key: coin.id,
+          image: coin.image,
           name: coin.name,
           current_price: coin.current_price.toString(),
           circulating_supply: coin.circulating_supply.toString(),
@@ -118,6 +121,24 @@ function App() {
       title: "Name",
       dataIndex: "name",
       key: "name",
+      render: (text: string, record: TableCoinElement) => (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "16px",
+          }}
+        >
+          <Image
+            src={record.image}
+            alt={text}
+            style={{
+              width: "32px",
+            }}
+          />
+          <Text>{text}</Text>
+        </div>
+      ),
     },
     {
       title: "Current Price",
