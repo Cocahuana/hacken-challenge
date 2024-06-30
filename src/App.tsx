@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Typography,
   Flex,
@@ -7,9 +8,64 @@ import {
   Select,
   Space,
   Table,
+  Spin,
 } from "antd";
 const { Text } = Typography;
+interface CryptoData {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  market_cap: number;
+  market_cap_rank: number;
+  fully_diluted_valuation: number | null;
+  total_volume: number;
+  high_24h: number;
+  low_24h: number;
+  price_change_24h: number;
+  price_change_percentage_24h: number;
+  market_cap_change_24h: number;
+  market_cap_change_percentage_24h: number;
+  circulating_supply: number;
+  total_supply: number;
+  max_supply: number | null;
+  ath: number;
+  ath_change_percentage: number;
+  ath_date: string;
+  atl: number;
+  atl_change_percentage: number;
+  atl_date: string;
+  roi: ROI | null;
+  last_updated: string;
+}
+
+interface ROI {
+  times: number;
+  currency: string;
+  percentage: number;
+}
+
+interface TableCoinElement {
+  key: string;
+  name: string;
+  current_price: string;
+  circulating_supply: string;
+}
 function App() {
+  const [coins, setCoins] = useState<null | CryptoData[]>(null);
+  const [dataSource, setDataSource] = useState<null | any>(null);
+  const [isTableLoading, setIsTableLoading] = useState<boolean>(false);
+  const BASE_URL = "https://api.coingecko.com/api/v3/coins/markets";
+  const USD = "usd";
+  const EUR = "eur";
+  const CURRENCY = "vs_currency";
+  const ASENDING = "asce";
+  const DESENDING = "desc";
+  const ORDER = "market_cap";
+  const PAGES = "per_page";
+  const MISC = "page=1&sparkline=false";
+  const finalURL = `${BASE_URL}?${CURRENCY}=${USD}&order=${ORDER}_${DESENDING}&${PAGES}=100&${MISC}`;
   const onShowSizeChange: PaginationProps["onShowSizeChange"] = (
     current,
     pageSize
@@ -25,20 +81,33 @@ function App() {
   const onChange = (value: string) => {
     console.log(`selected ${value}`);
   };
-  const dataSource = [
-    {
-      key: "1",
-      name: "Mike",
-      age: 32,
-      address: "10 Downing Street",
-    },
-    {
-      key: "2",
-      name: "John",
-      age: 42,
-      address: "10 Downing Street",
-    },
-  ];
+
+  useEffect(() => {
+    const fetchCoins = async () => {
+      try {
+        setIsTableLoading(true);
+        const response: any = await axios.get(finalURL);
+        setCoins(response.data);
+      } catch (error) {
+        setIsTableLoading(false);
+        console.error(error);
+      }
+    };
+    if (!coins) {
+      fetchCoins();
+    } else {
+      const dataToShow: TableCoinElement[] = coins.map((coin) => {
+        return {
+          key: coin.id,
+          name: coin.name,
+          current_price: coin.current_price.toString(),
+          circulating_supply: coin.circulating_supply.toString(),
+        };
+      });
+      setIsTableLoading(false);
+      setDataSource(dataToShow);
+    }
+  }, [coins, finalURL]);
 
   const columns = [
     {
@@ -48,16 +117,16 @@ function App() {
     },
     {
       title: "Current Price",
-      dataIndex: "Current Price",
-      key: "Current Price",
+      dataIndex: "current_price",
+      key: "current_price",
     },
     {
       title: "Circulating Supply",
-      dataIndex: "Circulating Supply",
-      key: "Circulating Supply",
+      dataIndex: "circulating_supply",
+      key: "circulating_supply",
     },
   ];
-
+  console.log("final", dataSource);
   return (
     <>
       <Flex
@@ -90,7 +159,10 @@ function App() {
             ]}
           />
         </Space>
-        <Table dataSource={dataSource} columns={columns} />;
+        <Spin spinning={isTableLoading}>
+          <Table columns={columns} dataSource={dataSource} rowKey="id" />
+        </Spin>
+
         {/* <Pagination
           showSizeChanger
           onShowSizeChange={onShowSizeChange}
