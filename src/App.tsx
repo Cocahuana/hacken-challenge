@@ -11,6 +11,7 @@ import {
   Spin,
 } from "antd";
 const { Text } = Typography;
+import abc from "../data.json";
 interface CryptoData {
   id: string;
   symbol: string;
@@ -56,6 +57,8 @@ function App() {
   const [coins, setCoins] = useState<null | CryptoData[]>(null);
   const [dataSource, setDataSource] = useState<null | any>(null);
   const [isTableLoading, setIsTableLoading] = useState<boolean>(false);
+  const [pageSize, setPageSize] = useState<number>(10); // Estado para el tamaño de página
+
   const BASE_URL = "https://api.coingecko.com/api/v3/coins/markets";
   const USD = "usd";
   const EUR = "eur";
@@ -86,8 +89,9 @@ function App() {
     const fetchCoins = async () => {
       try {
         setIsTableLoading(true);
-        const response: any = await axios.get(finalURL);
-        setCoins(response.data);
+        // const response: any = await axios.get(finalURL);
+        setCoins(abc);
+        // setCoins(response.data);
       } catch (error) {
         setIsTableLoading(false);
         console.error(error);
@@ -160,7 +164,17 @@ function App() {
           />
         </Space>
         <Spin spinning={isTableLoading}>
-          <Table columns={columns} dataSource={dataSource} rowKey="id" />
+          <Table
+            columns={columns}
+            dataSource={dataSource}
+            rowKey="key"
+            pagination={{
+              defaultPageSize: 10,
+              pageSizeOptions: ["5", "10", "20", "50", "100"],
+              showSizeChanger: true,
+              onShowSizeChange: (current, size) => setPageSize(size), // Manejar cambio de tamaño de página
+            }}
+          />
         </Spin>
 
         {/* <Pagination
@@ -169,7 +183,7 @@ function App() {
           defaultCurrent={3}
           total={500}
         /> */}
-        <Select
+        {/* <Select
           showSearch
           placeholder="10 / page"
           optionFilterProp="label"
@@ -197,7 +211,7 @@ function App() {
               label: "100 / page",
             },
           ]}
-        />
+        /> */}
       </Flex>
     </>
   );
