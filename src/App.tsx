@@ -1,15 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import {
-  Typography,
-  Flex,
-  Select,
-  Space,
-  Table,
-  Spin,
-  Image,
-  theme,
-} from "antd";
+import { Typography, Flex, Select, Space, Table, Spin, Image } from "antd";
 const { Text } = Typography;
 import { UnControlled as CodeMirror } from "react-codemirror2";
 import "codemirror/lib/codemirror.css";
@@ -66,7 +57,7 @@ function App() {
   const [coins, setCoins] = useState<null | CryptoData[]>(null);
   const [dataSource, setDataSource] = useState<null | any>(null);
   const [isTableLoading, setIsTableLoading] = useState<boolean>(false);
-  const [pageSize, setPageSize] = useState<number>(10); // Estado para el tamaño de página
+  const [, setPageSize] = useState<number>(10);
   const [code, setCode] =
     useState(`import React, { useEffect, useState } from "react";
 import axios from "axios";
@@ -425,7 +416,7 @@ export default App;
               defaultPageSize: 10,
               pageSizeOptions: ["5", "10", "20", "50", "100"],
               showSizeChanger: true,
-              onShowSizeChange: (current, size) => setPageSize(size),
+              onShowSizeChange: (size) => setPageSize(size),
             }}
           />
         </Spin>
@@ -440,12 +431,11 @@ export default App;
             extraKeys: { "Ctrl-Space": "autocomplete" },
             foldGutter: true,
             gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-            mode: "material",
+            theme: "material",
           }}
-          onBeforeChange={(editor, data, value) => {
+          onBeforeChange={(value) => {
             setCode(value);
           }}
-          onChange={(editor, value) => {}}
         />
       </Flex>
     </>
