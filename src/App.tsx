@@ -318,6 +318,7 @@ export default App;
   };
 
   useEffect(() => {
+    console.log("called: ", 1);
     const fetchCoins = async () => {
       try {
         setIsTableLoading(true);
@@ -344,7 +345,8 @@ export default App;
       setIsTableLoading(false);
       setDataSource(dataToShow);
     }
-  }, [apiUrl, coins]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const columns = [
     {
