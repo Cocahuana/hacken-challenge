@@ -60,17 +60,9 @@ function App() {
   const [dataSource, setDataSource] = useState<null | any>(null);
   const [isTableLoading, setIsTableLoading] = useState<boolean>(false);
   const [pageSize, setPageSize] = useState<number>(10); // Estado para el tamaño de página
-
-  const BASE_URL = "https://api.coingecko.com/api/v3/coins/markets";
-  const USD = "usd";
-  const EUR = "eur";
-  const CURRENCY = "vs_currency";
-  const ASCENDING = "asce";
-  const DESCENDING = "desc";
-  const ORDER = "market_cap";
-  const PAGES = "per_page";
-  const MISC = "page=1&sparkline=false";
-  const finalURL = `${BASE_URL}?${CURRENCY}=${USD}&order=${ORDER}_${DESCENDING}&${PAGES}=100&${MISC}`;
+  const [apiUrl, setApiUrl] = useState<string>(
+    "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false"
+  );
 
   const getCoinsBasedOnCurrency = async (url: string) => {
     try {
@@ -85,21 +77,28 @@ function App() {
 
   const handleOnCurrencyChange = (currency: string) => {
     console.log(`selected currency: ${currency}`);
-    const urlBasedOnCurrency: string = `${BASE_URL}?${CURRENCY}=${currency}&order=${ORDER}_${DESCENDING}&${PAGES}=100&${MISC}`;
+    const urlBasedOnCurrency: string = apiUrl.replace(
+      /vs_currency=[^&]+/,
+      `vs_currency=${currency}`
+    );
+    setApiUrl(urlBasedOnCurrency);
     getCoinsBasedOnCurrency(urlBasedOnCurrency);
   };
-  const onSearch = (value: string) => {
-    console.log("search:", value);
-  };
-  const onChange = (value: string) => {
-    console.log(`selected ${value}`);
+  const handleOnOrderChange = (order: string) => {
+    console.log(`selected order: ${order}`);
+    const urlBasedOnCurrency: string = apiUrl.replace(
+      /order=[^&]+/,
+      `order=${order}`
+    );
+    setApiUrl(urlBasedOnCurrency);
+    getCoinsBasedOnCurrency(urlBasedOnCurrency);
   };
 
   useEffect(() => {
     const fetchCoins = async () => {
       try {
         setIsTableLoading(true);
-        const response: any = await axios.get(finalURL);
+        const response: any = await axios.get(apiUrl);
         setCoins(response.data);
         // setCoins(abc);
       } catch (error) {
@@ -108,8 +107,7 @@ function App() {
       }
     };
     if (!coins) {
-      // fetchCoins();
-      handleOnCurrencyChange(USD);
+      fetchCoins();
     } else {
       const dataToShow: TableCoinElement[] = coins.map((coin) => {
         return {
@@ -123,7 +121,7 @@ function App() {
       setIsTableLoading(false);
       setDataSource(dataToShow);
     }
-  }, [coins, finalURL]);
+  }, [apiUrl, coins]);
 
   const columns = [
     {
@@ -160,7 +158,6 @@ function App() {
       key: "circulating_supply",
     },
   ];
-  console.log("final", dataSource);
   return (
     <>
       <Flex
@@ -185,12 +182,12 @@ function App() {
           </Space>
           <Space wrap>
             <Select
-              defaultValue="descending"
+              defaultValue="market_cap_desc"
               style={{ width: "200px" }}
-              // onChange={handleChange}
+              onChange={handleOnOrderChange}
               options={[
-                { value: "ascending", label: "Market cap ascending" },
-                { value: "descending", label: "Market cap descending" },
+                { value: "market_cap_asc", label: "Market cap ascending" },
+                { value: "market_cap_desc", label: "Market cap descending" },
               ]}
             />
           </Space>
