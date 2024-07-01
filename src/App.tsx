@@ -58,8 +58,7 @@ function App() {
   const [dataSource, setDataSource] = useState<null | any>(null);
   const [isTableLoading, setIsTableLoading] = useState<boolean>(false);
   const [, setPageSize] = useState<number>(10); // Estado para el tamaño de página
-  const [code] =
-    useState(`import { useCallback, useEffect, useState } from "react";
+  const code = `import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Typography, Flex, Select, Space, Table, Spin, Image } from "antd";
 const { Text } = Typography;
@@ -291,12 +290,23 @@ function App() {
 }
 
 export default App;
-`);
+`;
   const [apiUrl, setApiUrl] = useState<string>(
     "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10000&page=1&sparkline=false"
   );
 
   const getCoinsBasedOnCurrency = useCallback(async (url: string) => {
+    try {
+      setIsTableLoading(true);
+      const response = await axios.get(url);
+      setCoins(response.data);
+      setIsTableLoading(false);
+    } catch (error) {
+      setIsTableLoading(false);
+      console.error("ERROR - GET ONCHANGE CURRENCY", error);
+    }
+  }, []);
+  const getCoinsBasedOnOrder = useCallback(async (url: string) => {
     try {
       setIsTableLoading(true);
       const response = await axios.get(url);
@@ -327,9 +337,9 @@ export default App;
         "order=" + order
       );
       setApiUrl(urlBasedOnCurrency);
-      getCoinsBasedOnCurrency(urlBasedOnCurrency);
+      getCoinsBasedOnOrder(urlBasedOnCurrency);
     },
-    [apiUrl, getCoinsBasedOnCurrency]
+    [apiUrl, getCoinsBasedOnOrder]
   );
 
   useEffect(() => {
