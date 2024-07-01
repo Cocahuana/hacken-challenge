@@ -65,20 +65,28 @@ function App() {
   const USD = "usd";
   const EUR = "eur";
   const CURRENCY = "vs_currency";
-  const ASENDING = "asce";
-  const DESENDING = "desc";
+  const ASCENDING = "asce";
+  const DESCENDING = "desc";
   const ORDER = "market_cap";
   const PAGES = "per_page";
   const MISC = "page=1&sparkline=false";
-  const finalURL = `${BASE_URL}?${CURRENCY}=${USD}&order=${ORDER}_${DESENDING}&${PAGES}=100&${MISC}`;
-  const onShowSizeChange: PaginationProps["onShowSizeChange"] = (
-    current,
-    pageSize
-  ) => {
-    console.log(current, pageSize);
+  const finalURL = `${BASE_URL}?${CURRENCY}=${USD}&order=${ORDER}_${DESCENDING}&${PAGES}=100&${MISC}`;
+
+  const getCoinsBasedOnCurrency = async (url: string) => {
+    try {
+      setIsTableLoading(true);
+      const response: any = await axios.get(url);
+      setCoins(response.data);
+    } catch (error) {
+      setIsTableLoading(false);
+      console.log("ERROR - GET ONCHANGE CURRENCY", error);
+    }
   };
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
+
+  const handleOnCurrencyChange = (currency: string) => {
+    console.log(`selected currency: ${currency}`);
+    const urlBasedOnCurrency: string = `${BASE_URL}?${CURRENCY}=${currency}&order=${ORDER}_${DESCENDING}&${PAGES}=100&${MISC}`;
+    getCoinsBasedOnCurrency(urlBasedOnCurrency);
   };
   const onSearch = (value: string) => {
     console.log("search:", value);
@@ -91,16 +99,17 @@ function App() {
     const fetchCoins = async () => {
       try {
         setIsTableLoading(true);
-        // const response: any = await axios.get(finalURL);
-        setCoins(abc);
-        // setCoins(response.data);
+        const response: any = await axios.get(finalURL);
+        setCoins(response.data);
+        // setCoins(abc);
       } catch (error) {
         setIsTableLoading(false);
         console.error(error);
       }
     };
     if (!coins) {
-      fetchCoins();
+      // fetchCoins();
+      handleOnCurrencyChange(USD);
     } else {
       const dataToShow: TableCoinElement[] = coins.map((coin) => {
         return {
@@ -162,28 +171,30 @@ function App() {
         <Text style={{ fontSize: "24px", marginTop: "24px" }}>
           Coins & Markets
         </Text>
-        <Space wrap>
-          <Select
-            defaultValue="USD"
-            style={{ width: 120 }}
-            // onChange={handleChange}
-            options={[
-              { value: "USD", label: "USD" },
-              { value: "EUR", label: "EUR" },
-            ]}
-          />
-        </Space>
-        <Space wrap>
-          <Select
-            defaultValue="descending"
-            style={{ width: 120 }}
-            // onChange={handleChange}
-            options={[
-              { value: "ascending", label: "Market cap ascending" },
-              { value: "descending", label: "Market cap descending" },
-            ]}
-          />
-        </Space>
+        <Flex gap={"24px"}>
+          <Space wrap>
+            <Select
+              defaultValue="USD"
+              style={{ width: "200px" }}
+              onChange={handleOnCurrencyChange}
+              options={[
+                { value: "USD", label: "USD" },
+                { value: "EUR", label: "EUR" },
+              ]}
+            />
+          </Space>
+          <Space wrap>
+            <Select
+              defaultValue="descending"
+              style={{ width: "200px" }}
+              // onChange={handleChange}
+              options={[
+                { value: "ascending", label: "Market cap ascending" },
+                { value: "descending", label: "Market cap descending" },
+              ]}
+            />
+          </Space>
+        </Flex>
         <Spin spinning={isTableLoading}>
           <Table
             columns={columns}
@@ -197,42 +208,6 @@ function App() {
             }}
           />
         </Spin>
-
-        {/* <Pagination
-          showSizeChanger
-          onShowSizeChange={onShowSizeChange}
-          defaultCurrent={3}
-          total={500}
-        /> */}
-        {/* <Select
-          showSearch
-          placeholder="10 / page"
-          optionFilterProp="label"
-          onChange={onChange}
-          onSearch={onSearch}
-          options={[
-            {
-              value: "5 / page",
-              label: "5 / page",
-            },
-            {
-              value: "10 / page",
-              label: "10 / page",
-            },
-            {
-              value: "20 / page",
-              label: "20 / page",
-            },
-            {
-              value: "50 / page",
-              label: "50 / page",
-            },
-            {
-              value: "100 / page",
-              label: "100 / page",
-            },
-          ]}
-        /> */}
       </Flex>
     </>
   );
