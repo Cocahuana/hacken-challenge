@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Typography, Flex, Select, Space, Table, Spin, Image } from "antd";
 const { Text } = Typography;
@@ -58,7 +58,8 @@ function App() {
   const [dataSource, setDataSource] = useState<null | any>(null);
   const [isTableLoading, setIsTableLoading] = useState<boolean>(false);
   const [, setPageSize] = useState<number>(10); // Estado para el tamaño de página
-  const [code, setCode] = useState(`import { useEffect, useState } from "react";
+  const [code, setCode] =
+    useState(`import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Typography, Flex, Select, Space, Table, Spin, Image } from "antd";
 const { Text } = Typography;
@@ -123,59 +124,65 @@ function App() {
     "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10000&page=1&sparkline=false"
   );
 
-  const getCoinsBasedOnCurrency = async (url: string) => {
+  const getCoinsBasedOnCurrency = useCallback(async (url: string) => {
     try {
       setIsTableLoading(true);
-      const response: any = await axios.get(url);
+      const response = await axios.get(url);
       setCoins(response.data);
+      setIsTableLoading(false);
     } catch (error) {
       setIsTableLoading(false);
-      console.log("ERROR - GET ONCHANGE CURRENCY", error);
+      console.error("ERROR - GET ONCHANGE CURRENCY", error);
     }
-  };
+  }, []);
 
-  const handleOnCurrencyChange = (currency: string) => {
-    const urlBasedOnCurrency: string = apiUrl.replace(
-      /vs_currency=[^&]+/,
-      "vs_currency=" + currency
-    );
-    setApiUrl(urlBasedOnCurrency);
-    getCoinsBasedOnCurrency(urlBasedOnCurrency);
-  };
-  const handleOnOrderChange = (order: string) => {
-    const urlBasedOnCurrency: string = apiUrl.replace(
-      /order=[^&]+/,
-      "order=" + order
-    );
-    setApiUrl(urlBasedOnCurrency);
-    getCoinsBasedOnCurrency(urlBasedOnCurrency);
-  };
+  const handleOnCurrencyChange = useCallback(
+    (currency: string) => {
+      const urlBasedOnCurrency = apiUrl.replace(
+        /vs_currency=[^&]+/,
+        "vs_currency=" + currency
+      );
+      setApiUrl(urlBasedOnCurrency);
+      getCoinsBasedOnCurrency(urlBasedOnCurrency);
+    },
+    [apiUrl, getCoinsBasedOnCurrency]
+  );
+
+  const handleOnOrderChange = useCallback(
+    (order: string) => {
+      const urlBasedOnCurrency = apiUrl.replace(
+        /order=[^&]+/,
+        "order=" + order
+      );
+      setApiUrl(urlBasedOnCurrency);
+      getCoinsBasedOnCurrency(urlBasedOnCurrency);
+    },
+    [apiUrl, getCoinsBasedOnCurrency]
+  );
 
   useEffect(() => {
     const fetchCoins = async () => {
       try {
         setIsTableLoading(true);
-        const response: any = await axios.get(apiUrl);
+        const response = await axios.get(apiUrl);
         setCoins(response.data);
-        // setCoins(abc);
+        setIsTableLoading(false);
       } catch (error) {
         setIsTableLoading(false);
         console.error(error);
       }
     };
+
     if (!coins) {
       fetchCoins();
     } else {
-      const dataToShow: TableCoinElement[] = coins.map((coin) => {
-        return {
-          key: coin.id,
-          image: coin.image,
-          name: coin.name,
-          current_price: coin.current_price.toString(),
-          circulating_supply: coin.circulating_supply.toString(),
-        };
-      });
-      setIsTableLoading(false);
+      const dataToShow: TableCoinElement[] = coins.map((coin) => ({
+        key: coin.id,
+        image: coin.image,
+        name: coin.name,
+        current_price: coin.current_price.toString(),
+        circulating_supply: coin.circulating_supply.toString(),
+      }));
       setDataSource(dataToShow);
     }
   }, [apiUrl, coins]);
@@ -258,7 +265,7 @@ function App() {
               defaultPageSize: 10,
               pageSizeOptions: ["5", "10", "20", "50", "100"],
               showSizeChanger: true,
-              onShowSizeChange: (current, size) => setPageSize(size),
+              onShowSizeChange: (_, size) => setPageSize(size),
             }}
           />
         </Spin>
@@ -274,7 +281,7 @@ function App() {
             foldGutter: true,
             theme: "material",
           }}
-          onBeforeChange={(editor, data, value) => {
+          onBeforeChange={(_editor, _data, value) => {
             setCode(value);
           }}
         />
@@ -289,64 +296,68 @@ export default App;
     "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10000&page=1&sparkline=false"
   );
 
-  const getCoinsBasedOnCurrency = async (url: string) => {
+  const getCoinsBasedOnCurrency = useCallback(async (url: string) => {
     try {
       setIsTableLoading(true);
-      const response: any = await axios.get(url);
+      const response = await axios.get(url);
       setCoins(response.data);
+      setIsTableLoading(false);
     } catch (error) {
       setIsTableLoading(false);
-      console.log("ERROR - GET ONCHANGE CURRENCY", error);
+      console.error("ERROR - GET ONCHANGE CURRENCY", error);
     }
-  };
+  }, []);
 
-  const handleOnCurrencyChange = (currency: string) => {
-    const urlBasedOnCurrency: string = apiUrl.replace(
-      /vs_currency=[^&]+/,
-      "vs_currency=" + currency
-    );
-    setApiUrl(urlBasedOnCurrency);
-    getCoinsBasedOnCurrency(urlBasedOnCurrency);
-  };
-  const handleOnOrderChange = (order: string) => {
-    const urlBasedOnCurrency: string = apiUrl.replace(
-      /order=[^&]+/,
-      "order=" + order
-    );
-    setApiUrl(urlBasedOnCurrency);
-    getCoinsBasedOnCurrency(urlBasedOnCurrency);
-  };
+  const handleOnCurrencyChange = useCallback(
+    (currency: string) => {
+      const urlBasedOnCurrency = apiUrl.replace(
+        /vs_currency=[^&]+/,
+        "vs_currency=" + currency
+      );
+      setApiUrl(urlBasedOnCurrency);
+      getCoinsBasedOnCurrency(urlBasedOnCurrency);
+    },
+    [apiUrl, getCoinsBasedOnCurrency]
+  );
+
+  const handleOnOrderChange = useCallback(
+    (order: string) => {
+      const urlBasedOnCurrency = apiUrl.replace(
+        /order=[^&]+/,
+        "order=" + order
+      );
+      setApiUrl(urlBasedOnCurrency);
+      getCoinsBasedOnCurrency(urlBasedOnCurrency);
+    },
+    [apiUrl, getCoinsBasedOnCurrency]
+  );
 
   useEffect(() => {
-    console.log("called: ", 1);
     const fetchCoins = async () => {
       try {
         setIsTableLoading(true);
-        const response: any = await axios.get(apiUrl);
+        const response = await axios.get(apiUrl);
         setCoins(response.data);
-        // setCoins(abc);
+        setIsTableLoading(false);
       } catch (error) {
         setIsTableLoading(false);
         console.error(error);
       }
     };
+
     if (!coins) {
       fetchCoins();
     } else {
-      const dataToShow: TableCoinElement[] = coins.map((coin) => {
-        return {
-          key: coin.id,
-          image: coin.image,
-          name: coin.name,
-          current_price: coin.current_price.toString(),
-          circulating_supply: coin.circulating_supply.toString(),
-        };
-      });
-      setIsTableLoading(false);
+      const dataToShow: TableCoinElement[] = coins.map((coin) => ({
+        key: coin.id,
+        image: coin.image,
+        name: coin.name,
+        current_price: coin.current_price.toString(),
+        circulating_supply: coin.circulating_supply.toString(),
+      }));
       setDataSource(dataToShow);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [apiUrl, coins]);
 
   const columns = [
     {
@@ -426,7 +437,7 @@ export default App;
               defaultPageSize: 10,
               pageSizeOptions: ["5", "10", "20", "50", "100"],
               showSizeChanger: true,
-              onShowSizeChange: (_current, size) => setPageSize(size),
+              onShowSizeChange: (_, size) => setPageSize(size),
             }}
           />
         </Spin>
