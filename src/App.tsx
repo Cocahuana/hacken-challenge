@@ -2,7 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Typography, Flex, Select, Space, Table, Spin, Image } from "antd";
 const { Text } = Typography;
-import { UnControlled as CodeMirror } from "react-codemirror2";
+// import { UnControlled as CodeMirror } from "react-codemirror2";
+import CodeMirror from "@uiw/react-codemirror";
+
+import { javascript } from "@codemirror/lang-javascript";
 import "codemirror/lib/codemirror.css";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/addon/hint/show-hint";
@@ -62,7 +65,10 @@ function App() {
 import axios from "axios";
 import { Typography, Flex, Select, Space, Table, Spin, Image } from "antd";
 const { Text } = Typography;
-import { UnControlled as CodeMirror } from "react-codemirror2";
+// import { UnControlled as CodeMirror } from "react-codemirror2";
+import CodeMirror from "@uiw/react-codemirror";
+
+import { javascript } from "@codemirror/lang-javascript";
 import "codemirror/lib/codemirror.css";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/addon/hint/show-hint";
@@ -118,12 +124,23 @@ function App() {
   const [dataSource, setDataSource] = useState<null | any>(null);
   const [isTableLoading, setIsTableLoading] = useState<boolean>(false);
   const [, setPageSize] = useState<number>(10); // Estado para el tamaño de página
-  const [code, setCode] = useState("YourCodeMirrorCode");
+  const code = "MyCode";
   const [apiUrl, setApiUrl] = useState<string>(
     "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10000&page=1&sparkline=false"
   );
 
   const getCoinsBasedOnCurrency = useCallback(async (url: string) => {
+    try {
+      setIsTableLoading(true);
+      const response = await axios.get(url);
+      setCoins(response.data);
+      setIsTableLoading(false);
+    } catch (error) {
+      setIsTableLoading(false);
+      console.error("ERROR - GET ONCHANGE CURRENCY", error);
+    }
+  }, []);
+  const getCoinsBasedOnOrder = useCallback(async (url: string) => {
     try {
       setIsTableLoading(true);
       const response = await axios.get(url);
@@ -154,9 +171,9 @@ function App() {
         "order=" + order
       );
       setApiUrl(urlBasedOnCurrency);
-      getCoinsBasedOnCurrency(urlBasedOnCurrency);
+      getCoinsBasedOnOrder(urlBasedOnCurrency);
     },
-    [apiUrl, getCoinsBasedOnCurrency]
+    [apiUrl, getCoinsBasedOnOrder]
   );
 
   useEffect(() => {
@@ -273,17 +290,10 @@ function App() {
         </Text>
         <CodeMirror
           value={code}
-          options={{
-            lineNumbers: true,
-            mode: "typescript",
-            extraKeys: { "Ctrl-Space": "autocomplete" },
-            foldGutter: true,
-            theme: "material",
-          }}
-          onBeforeChange={(_editor, _data, value) => {
-            setCode(value);
-          }}
+          minHeight="100%"
+          extensions={[javascript({ jsx: true })]}
         />
+        ;
       </Flex>
     </>
   );
@@ -456,17 +466,10 @@ export default App;
         </Text>
         <CodeMirror
           value={code}
-          options={{
-            lineNumbers: true,
-            mode: "typescript",
-            extraKeys: { "Ctrl-Space": "autocomplete" },
-            foldGutter: true,
-            theme: "material",
-          }}
-          // onBeforeChange={(_editor, _data, value) => {
-          //   setCode(value);
-          // }}
+          minHeight="100%"
+          extensions={[javascript({ jsx: true })]}
         />
+        ;
       </Flex>
     </>
   );
