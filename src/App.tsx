@@ -453,9 +453,9 @@ export default App;
             foldGutter: true,
             theme: "material",
           }}
-          onBeforeChange={(_editor, _data, value) => {
-            setCode(value);
-          }}
+          // onBeforeChange={(_editor, _data, value) => {
+          //   setCode(value);
+          // }}
         />
       </Flex>
     </>
