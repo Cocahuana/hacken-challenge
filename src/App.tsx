@@ -58,7 +58,7 @@ function App() {
   const [dataSource, setDataSource] = useState<null | any>(null);
   const [isTableLoading, setIsTableLoading] = useState<boolean>(false);
   const [, setPageSize] = useState<number>(10); // Estado para el tamaño de página
-  const [code, setCode] =
+  const [code] =
     useState(`import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Typography, Flex, Select, Space, Table, Spin, Image } from "antd";
@@ -453,9 +453,9 @@ export default App;
             foldGutter: true,
             theme: "material",
           }}
-          onBeforeChange={(_editor, _data, value) => {
-            setCode(value);
-          }}
+          // onBeforeChange={(_editor, _data, value) => {
+          //   setCode(value);
+          // }}
         />
       </Flex>
     </>
