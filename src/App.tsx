@@ -291,7 +291,7 @@ function App() {
         <CodeMirror
           value={code}
           minHeight="100%"
-          extensions={[javascript({ jsx: true })]}
+          extensions={[javascript({ typescript: true })]}
         />
         ;
       </Flex>
@@ -467,9 +467,8 @@ export default App;
         <CodeMirror
           value={code}
           minHeight="100%"
-          extensions={[javascript({ jsx: true })]}
+          extensions={[javascript({ typescript: true })]}
         />
-        ;
       </Flex>
     </>
   );
